@@ -45,7 +45,7 @@ export const TextHoverEffect = ({
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onMouseMove={(e) => setCursor({ x: e.clientX, y: e.clientY })}
-        className="select-none"
+        className="select-none relative z-10"
         style={{ minHeight: "120px" }} // Ensure minimum height
       >
         <defs>
@@ -54,18 +54,50 @@ export const TextHoverEffect = ({
             gradientUnits="userSpaceOnUse"
             cx="50%"
             cy="50%"
-            r="25%"
+            r="30%"
           >
-            {hovered && (
+            {hovered ? (
               <>
-                <stop offset="0%" stopColor="#eab308" />
-                <stop offset="25%" stopColor="#ef4444" />
-                <stop offset="50%" stopColor="#3b82f6" />
-                <stop offset="75%" stopColor="#06b6d4" />
-                <stop offset="100%" stopColor="#8b5cf6" />
+                <stop offset="0%" stopColor="#f8fafc" stopOpacity="0.6" />
+                <stop offset="25%" stopColor="#cbd5e1" stopOpacity="0.5" />
+                <stop offset="50%" stopColor="#94a3b8" stopOpacity="0.4" />
+                <stop offset="75%" stopColor="#64748b" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#475569" stopOpacity="0.6" />
+              </>
+            ) : (
+              <>
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
+                <stop offset="50%" stopColor="#f1f5f9" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#e2e8f0" stopOpacity="0.15" />
               </>
             )}
           </linearGradient>
+
+          <filter id="glassBlur" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.3" />
+            <feOffset dx="0" dy="0.2" result="softBlur" />
+            <feMerge>
+              <feMergeNode in="softBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <filter id="subtleGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.5" result="softGlow" />
+            <feOffset dx="0" dy="0" result="offsetGlow" />
+            <feMerge>
+              <feMergeNode in="offsetGlow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+
+          <filter id="refinedGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="refinedBlur" />
+            <feMerge>
+              <feMergeNode in="refinedBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
 
           <motion.radialGradient
             id="revealMask"
@@ -92,28 +124,31 @@ export const TextHoverEffect = ({
             />
           </mask>
         </defs>
+
+        {/* Base visible text layer */}
         <text
           x="50%"
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          strokeWidth="0.3"
-          className="fill-transparent stroke-neutral-200 font-bold dark:stroke-neutral-800"
+          strokeWidth="1.5"
+          className="fill-neutral-300 stroke-neutral-400 font-bold dark:fill-neutral-600 dark:stroke-neutral-500"
           style={{
-            opacity: hovered ? 0.7 : 0,
-            fontSize: "6rem", // Use CSS font-size instead of Tailwind text-9xl
+            fontSize: "6rem",
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >
           {text}
         </text>
+
+        {/* Animated stroke outline */}
         <motion.text
           x="50%"
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          strokeWidth="0.3"
-          className="fill-transparent stroke-neutral-200 font-bold dark:stroke-neutral-800"
+          strokeWidth="2"
+          className="fill-transparent stroke-neutral-600 font-bold dark:stroke-neutral-300"
           initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
           animate={{
             strokeDashoffset: 0,
@@ -124,23 +159,26 @@ export const TextHoverEffect = ({
             ease: "easeInOut",
           }}
           style={{
-            fontSize: "6rem", // Use CSS font-size instead of Tailwind text-9xl
+            fontSize: "6rem",
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >
           {text}
         </motion.text>
+
+        {/* Hover gradient effect layer */}
         <text
           x="50%"
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
           stroke="url(#textGradient)"
-          strokeWidth="0.3"
+          strokeWidth="2"
           mask="url(#textMask)"
           className="fill-transparent font-bold"
           style={{
-            fontSize: "6rem", // Use CSS font-size instead of Tailwind text-9xl
+            opacity: hovered ? 1 : 0,
+            fontSize: "6rem",
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >

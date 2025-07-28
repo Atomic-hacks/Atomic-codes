@@ -27,7 +27,7 @@ interface HeaderProps {
 // Location Badge Component
 const LocationBadge: React.FC<LocationBadgeProps> = ({ className = "" }) => (
   <div
-    className={`flex items-center gap-2 px-4 py-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 ${className}`}
+    className={`hidden md:flex items-center gap-2 px-4 py-4 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 ${className}`}
   >
     <MapPin size={14} className="text-white/60" />
     <span className="text-sm text-white/80 font-medium">
@@ -94,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({ isActive, setIsActive }) => {
       {/* Main Header */}
       <div
         ref={header}
-        className="absolute top-0 left-0 right-0 z-20 p-6 md:p-8"
+        className="absolute top-0 left-0 right-0 z-20 p-4 md:p-8"
       >
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-6">
