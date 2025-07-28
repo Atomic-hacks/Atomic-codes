@@ -27,8 +27,28 @@ const CustomCursor = () => {
   const cursorInnerRef = useRef<HTMLDivElement>(null);
   const cursorTextRef = useRef<HTMLDivElement>(null);
   const [cursorText, setCursorText] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if device is mobile/tablet
+    const checkMobile = () => {
+      const isMobileDevice =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        ) ||
+        window.innerWidth <= 768 ||
+        "ontouchstart" in window;
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    // If mobile, don't initialize cursor
+    if (isMobile) {
+      return () => window.removeEventListener("resize", checkMobile);
+    }
+
     const cursor = cursorRef.current;
     const cursorInner = cursorInnerRef.current;
     const cursorTextEl = cursorTextRef.current;
@@ -113,13 +133,17 @@ const CustomCursor = () => {
       document.removeEventListener("mousemove", updateMousePosition);
       document.removeEventListener("mouseover", handleMouseEnter);
       document.removeEventListener("mouseout", handleMouseLeave);
+      window.removeEventListener("resize", checkMobile);
     };
-  }, []);
+  }, [isMobile]);
+
+  // Don't render cursor on mobile
+  if (isMobile) return null;
 
   return (
     <div
       ref={cursorRef}
-      className="fixed top-0 left-0 pointer-events-none z-50"
+      className="fixed top-0 left-0 pointer-events-none z-50 hidden md:block"
     >
       <div
         ref={cursorInnerRef}
@@ -139,9 +163,21 @@ const CustomCursor = () => {
 const PortfolioDescription = () => {
   const [activeCategory, setActiveCategory] =
     useState<StackCategory>("frontend");
+  const [isMobile, setIsMobile] = useState(false);
   const techGridRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const experienceRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const stackData: StackData = {
     frontend: [
@@ -238,14 +274,34 @@ const PortfolioDescription = () => {
     },
   ];
 
-  // Animation functions
+  // Animation functions - simplified for mobile
   const animateTechGrid = (category: StackCategory) => {
     const grid = techGridRef.current;
     if (!grid) return;
 
     const items = grid.querySelectorAll(".tech-item");
 
-    // Create a more fluid exit animation
+    // Simplified animation for mobile
+    if (isMobile) {
+      gsap.to(items, {
+        opacity: 0,
+        duration: 0.2,
+        onComplete: () => {
+          setActiveCategory(category);
+          setTimeout(() => {
+            const newItems = grid.querySelectorAll(".tech-item");
+            gsap.fromTo(
+              newItems,
+              { opacity: 0 },
+              { opacity: 1, duration: 0.3, stagger: 0.05 }
+            );
+          }, 50);
+        },
+      });
+      return;
+    }
+
+    // Full animation for desktop
     gsap.to(items, {
       opacity: 0,
       y: -30,
@@ -260,7 +316,6 @@ const PortfolioDescription = () => {
       onComplete: () => {
         setActiveCategory(category);
 
-        // Animate in new items with improved timing
         setTimeout(() => {
           const newItems = grid.querySelectorAll(".tech-item");
           gsap.fromTo(
@@ -293,6 +348,8 @@ const PortfolioDescription = () => {
   };
 
   const animateTabSwitch = (category: StackCategory) => {
+    if (isMobile) return; // Skip complex animations on mobile
+
     const tabs = tabsRef.current;
     if (!tabs) return;
 
@@ -320,11 +377,13 @@ const PortfolioDescription = () => {
     animateTechGrid(category);
   };
 
-  // Enhanced tech item hover
+  // Enhanced tech item hover - disabled on mobile
   const handleTechHover = (
     e: React.MouseEvent<HTMLDivElement>,
     isEntering: boolean
   ) => {
+    if (isMobile) return; // Disable hover effects on mobile
+
     const item = e.currentTarget;
     const text = item.querySelector(".tech-text");
     const shine = item.querySelector(".tech-shine");
@@ -383,13 +442,14 @@ const PortfolioDescription = () => {
     }
   };
 
-  // Enhanced experience hover
+  // Enhanced experience hover - disabled on mobile
   const handleExperienceHover = (
     e: React.MouseEvent<HTMLDivElement>,
     isEntering: boolean
   ) => {
+    if (isMobile) return; // Disable hover effects on mobile
+
     const item = e.currentTarget;
-    //const content = item.querySelector(".experience-content");
     const bg = item.querySelector(".experience-bg");
     const title = item.querySelector(".exp-title");
     const company = item.querySelector(".exp-company");
@@ -475,87 +535,110 @@ const PortfolioDescription = () => {
     }
   };
 
-  // Initialize animations on mount
+  // Initialize animations on mount - simplified for mobile
   useEffect(() => {
     const grid = techGridRef.current;
     const experience = experienceRef.current;
 
     if (grid) {
       const items = grid.querySelectorAll(".tech-item");
-      gsap.fromTo(
-        items,
-        {
-          opacity: 0,
-          y: 50,
-          scale: 0.7,
-          rotationX: -45,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          rotationX: 0,
-          duration: 1,
-          stagger: {
-            amount: 0.6,
-            from: "start",
-            ease: "power2.out",
+
+      if (isMobile) {
+        // Simple fade-in for mobile
+        gsap.fromTo(
+          items,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5, stagger: 0.05, delay: 0.2 }
+        );
+      } else {
+        // Full animation for desktop
+        gsap.fromTo(
+          items,
+          {
+            opacity: 0,
+            y: 50,
+            scale: 0.7,
+            rotationX: -45,
           },
-          ease: "elastic.out(1, 0.4)",
-          delay: 0.3,
-        }
-      );
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotationX: 0,
+            duration: 1,
+            stagger: {
+              amount: 0.6,
+              from: "start",
+              ease: "power2.out",
+            },
+            ease: "elastic.out(1, 0.4)",
+            delay: 0.3,
+          }
+        );
+      }
     }
 
     if (experience) {
       const items = experience.querySelectorAll(".experience-item");
-      gsap.fromTo(
-        items,
-        {
-          opacity: 0,
-          x: -80,
-          rotationY: -15,
-        },
-        {
-          opacity: 1,
-          x: 0,
-          rotationY: 0,
-          duration: 1,
-          stagger: 0.15,
-          ease: "power3.out",
-          delay: 0.5,
-        }
-      );
+
+      if (isMobile) {
+        // Simple fade-in for mobile
+        gsap.fromTo(
+          items,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.5, stagger: 0.1, delay: 0.3 }
+        );
+      } else {
+        // Full animation for desktop
+        gsap.fromTo(
+          items,
+          {
+            opacity: 0,
+            x: -80,
+            rotationY: -15,
+          },
+          {
+            opacity: 1,
+            x: 0,
+            rotationY: 0,
+            duration: 1,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.5,
+          }
+        );
+      }
     }
-  }, []);
+  }, [isMobile]);
 
   return (
     <>
       <CustomCursor />
       <div
-        className="min-h-screen text-white relative"
-        style={{ cursor: "none" }}
+        className={`min-h-screen text-white relative ${!isMobile ? "cursor-none" : ""}`}
       >
-        <div className="max-w-6xl mx-auto px-6 py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
           {/* Header */}
-          <div className="mb-32">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 mb-8 w-fit">
+          <div className="mb-20 sm:mb-32">
+            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 mb-6 sm:mb-8 w-fit">
               <MapPin size={14} className="text-white/60" />
-              <span className="text-sm text-white/80">Based in Nigeria</span>
+              <span className="text-xs sm:text-sm text-white/80">
+                Based in Nigeria
+              </span>
             </div>
 
-            <h1 className="text-7xl md:text-9xl font-light mb-8 tracking-tight">
+            <h1 className="text-5xl sm:text-7xl md:text-9xl font-light mb-6 sm:mb-8 tracking-tight">
               About
             </h1>
 
             <div className="max-w-2xl">
-              <p className="text-xl text-white/60 font-light leading-relaxed mb-8">
+              <p className="text-lg sm:text-xl text-white/60 font-light leading-relaxed mb-6 sm:mb-8">
                 A passionate full-stack developer crafting digital experiences
                 with precision and creativity. Specialized in modern web
                 technologies, mobile development, and AI-powered solutions.
               </p>
 
-              <div className="flex items-center gap-6 text-sm text-white/40">
+              <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-white/40">
                 <span>3+ Years Experience</span>
                 <span>•</span>
                 <span>Available for projects</span>
@@ -564,28 +647,28 @@ const PortfolioDescription = () => {
           </div>
 
           {/* Tech Stack */}
-          <div className="mb-32">
-            <h2 className="text-4xl font-light mb-16 tracking-tight">
+          <div className="mb-20 sm:mb-32">
+            <h2 className="text-3xl sm:text-4xl font-light mb-12 sm:mb-16 tracking-tight">
               Technology Stack
             </h2>
 
             {/* Category Navigation */}
             <div
               ref={tabsRef}
-              className="flex gap-4 mb-12 border-b border-white/10"
+              className="flex gap-2 sm:gap-4 mb-8 sm:mb-12 border-b border-white/10 overflow-x-auto scrollbar-hide"
             >
               {(Object.keys(stackData) as StackCategory[]).map((category) => (
                 <button
                   key={category}
                   data-category={category}
                   onClick={() => handleCategoryChange(category)}
-                  className={`pb-4 text-sm font-medium transition-all duration-500 capitalize relative overflow-hidden ${
+                  className={`pb-3 sm:pb-4 px-2 sm:px-0 text-xs sm:text-sm font-medium transition-all duration-500 capitalize relative overflow-hidden whitespace-nowrap flex-shrink-0 ${
                     activeCategory === category
                       ? "text-white border-b-2 border-white"
                       : "text-white/40 hover:text-white/70"
                   }`}
                   onMouseEnter={(e) => {
-                    if (activeCategory !== category) {
+                    if (activeCategory !== category && !isMobile) {
                       gsap.to(e.currentTarget, {
                         y: -3,
                         scale: 1.05,
@@ -595,7 +678,7 @@ const PortfolioDescription = () => {
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (activeCategory !== category) {
+                    if (activeCategory !== category && !isMobile) {
                       gsap.to(e.currentTarget, {
                         y: 0,
                         scale: 1,
@@ -621,17 +704,17 @@ const PortfolioDescription = () => {
             {/* Tech Grid */}
             <div
               ref={techGridRef}
-              className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4"
             >
               {stackData[activeCategory].map((tech, index) => (
                 <div
                   key={`${tech}-${index}`}
-                  className="tech-item group p-4 rounded-lg border border-white/10 hover:border-white/30 
+                  className="tech-item group p-3 sm:p-4 rounded-lg border border-white/10 hover:border-white/30 
                     transition-all duration-500 text-center relative overflow-hidden"
                   onMouseEnter={(e) => handleTechHover(e, true)}
                   onMouseLeave={(e) => handleTechHover(e, false)}
                 >
-                  <span className="tech-text text-sm text-white/80 relative z-10 block transition-all duration-300">
+                  <span className="tech-text text-xs sm:text-sm text-white/80 relative z-10 block transition-all duration-300">
                     {tech}
                   </span>
 
@@ -652,16 +735,16 @@ const PortfolioDescription = () => {
           </div>
 
           {/* Experience */}
-          <div className="mb-32">
-            <h2 className="text-4xl font-light mb-16 tracking-tight">
+          <div className="mb-20 sm:mb-32">
+            <h2 className="text-3xl sm:text-4xl font-light mb-12 sm:mb-16 tracking-tight">
               Experience
             </h2>
 
-            <div ref={experienceRef} className="space-y-12">
+            <div ref={experienceRef} className="space-y-8 sm:space-y-12">
               {experiences.map((exp, index) => (
                 <div
                   key={index}
-                  className="experience-item border-b border-white/10 pb-12 last:border-b-0 
+                  className="experience-item border-b border-white/10 pb-8 sm:pb-12 last:border-b-0 
                     relative overflow-hidden group"
                   onMouseEnter={(e) => handleExperienceHover(e, true)}
                   onMouseLeave={(e) => handleExperienceHover(e, false)}
@@ -678,20 +761,20 @@ const PortfolioDescription = () => {
                     opacity-0 scale-95 rounded-full blur-sm"
                   />
 
-                  <div className="experience-content flex flex-col md:flex-row md:items-start gap-8 relative z-10">
+                  <div className="experience-content flex flex-col gap-4 sm:gap-6 md:flex-row md:items-start md:gap-8 relative z-10">
                     <div className="md:w-1/3">
-                      <h3 className="exp-title text-xl font-medium mb-2 text-white/70 transition-all duration-400">
+                      <h3 className="exp-title text-lg sm:text-xl font-medium mb-1 sm:mb-2 text-white/70 transition-all duration-400">
                         {exp.title}
                       </h3>
-                      <p className="exp-company text-white/60 mb-2 transition-all duration-400">
+                      <p className="exp-company text-sm sm:text-base text-white/60 mb-1 sm:mb-2 transition-all duration-400">
                         {exp.company}
                       </p>
-                      <p className="text-sm text-white/40 transition-all duration-400">
+                      <p className="text-xs sm:text-sm text-white/40 transition-all duration-400">
                         {exp.duration}
                       </p>
                     </div>
                     <div className="md:w-2/3">
-                      <p className="exp-description text-white/70 leading-relaxed transition-all duration-400">
+                      <p className="exp-description text-sm sm:text-base text-white/70 leading-relaxed transition-all duration-400">
                         {exp.description}
                       </p>
                     </div>
@@ -705,8 +788,8 @@ const PortfolioDescription = () => {
           <div className="text-center">
             <Magnetic>
               <RoundedButton
-                className="px-8 py-4 text-lg"
-                icon={<ArrowUpRight size={20} />}
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg"
+                icon={<ArrowUpRight size={18} className="sm:w-5 sm:h-5" />}
               >
                 Let&apos;s Work Together
               </RoundedButton>

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowUpRight, MapPin } from "lucide-react";
+import { DownloadIcon, MapPin } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import gsap from "gsap";
@@ -35,6 +35,13 @@ const LocationBadge: React.FC<LocationBadgeProps> = ({ className = "" }) => (
     </span>
   </div>
 );
+
+const handleDownload = () => {
+  const link = document.createElement("a");
+  link.href = "Atomic-codes-CV.pdf";
+  link.download = "Atomic-codes-CV.pdf";
+  link.click();
+};
 
 // Header Component
 const Header: React.FC<HeaderProps> = ({ isActive, setIsActive }) => {
@@ -275,9 +282,10 @@ export const Hero: React.FC = () => {
             className="rounded-full px-4 md:px-12 md:py-6 py-4"
             data-scroll
             data-scroll-speed={0.1}
-            icon={<ArrowUpRight />}
+            icon={<DownloadIcon />}
+            onClick={handleDownload}
           >
-            Contact
+            Download Resume
           </RoundedButton>
         </div>
       </div>
