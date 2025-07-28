@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ReactLenis } from "@/utils/lenis";
+import { WavyBackground } from "@/components/ui/gradient-background";
+import PortfolioFooter from "@/components/layout/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,11 +27,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <ReactLenis root>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <WavyBackground
+            backgroundFill="rgb(2, 6, 0)"
+            colors={["#38bdf8", "#818cf8", "#c084fc", "#e879f9", "#22d3ee"]}
+            waveOpacity={0.3}
+            blur={15}
+            speed="fast"
+          >
+            <main className="relative">{children}</main>
+            <PortfolioFooter />
+          </WavyBackground>
+        </body>
+      </ReactLenis>
     </html>
   );
 }
