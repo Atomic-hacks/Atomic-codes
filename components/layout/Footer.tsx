@@ -12,52 +12,7 @@ import {
   Check,
   X,
 } from "lucide-react";
-
-// Mock Magnetic component
-const Magnetic = ({ children }: { children: React.ReactNode }) => (
-  <div className="hover:scale-105 transition-transform duration-300">
-    {children}
-  </div>
-);
-
-// Mock RoundedButton component
-const RoundedButton = ({
-  children,
-  className = "",
-  variant = "primary",
-  icon,
-  href,
-  onClick,
-  ...props
-}: {
-  children: React.ReactNode;
-  className?: string;
-  variant?: "primary" | "secondary";
-  icon?: React.ReactNode;
-  href?: string;
-  onClick?: () => void;
-}) => {
-  const baseClasses =
-    "inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all duration-300 hover:scale-105";
-  const variantClasses =
-    variant === "primary"
-      ? "bg-white text-black hover:bg-gray-100"
-      : "bg-transparent border border-white/20 text-white hover:bg-white/10";
-
-  const Component = href ? "a" : "button";
-
-  return (
-    <Component
-      href={href}
-      onClick={onClick}
-      className={`${baseClasses} ${variantClasses} ${className}`}
-      {...props}
-    >
-      {children}
-      {icon}
-    </Component>
-  );
-};
+import RoundedButton from "../ui/magic-button";
 
 // TypeScript interfaces
 interface SocialLink {
@@ -273,7 +228,7 @@ const PortfolioFooter: React.FC = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Magnetic>
+          
               <RoundedButton
                 className="px-8 py-4 text-lg"
                 icon={<ArrowUpRight size={20} />}
@@ -281,9 +236,9 @@ const PortfolioFooter: React.FC = () => {
               >
                 Start a Project
               </RoundedButton>
-            </Magnetic>
+          
 
-            <Magnetic>
+           
               <RoundedButton
                 variant="secondary"
                 className="px-8 py-4 text-lg"
@@ -291,7 +246,7 @@ const PortfolioFooter: React.FC = () => {
               >
                 Back to Top
               </RoundedButton>
-            </Magnetic>
+         
           </div>
         </div>
 
