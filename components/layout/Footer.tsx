@@ -144,7 +144,7 @@ const PortfolioFooter: React.FC = () => {
   }, [alert.show]);
 
   const socialLinks: SocialLink[] = [
-    { icon: <Github size={20} />, label: "GitHub", href: "github.com/Atomic-hacks" },
+    { icon: <Github size={20} />, label: "GitHub", href: "https://www.github.com/Atomic-hacks" },
     { icon: <Linkedin size={20} />, label: "LinkedIn", href: "https://www.linkedin.com/in/victor-ikechukwu-759a44346?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" },
     { icon: <Twitter size={20} />, label: "Twitter", href: "#" },
     {
@@ -340,7 +340,7 @@ const PortfolioFooter: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-white/60">
                 <Mail size={16} />
-                <span>hello@example.com</span>
+                <span>atomicisnoah.code@gmail.com</span>
               </div>
               <div className="flex items-center gap-3 text-white/60">
                 <MapPin size={16} />
@@ -382,9 +382,7 @@ const PortfolioFooter: React.FC = () => {
                 <div key={index}>
                   <RoundedButton
                     href={social.href}
-                    className="flex items-center gap-2 px-4 py-2 border border-white/20 
-                      rounded-full text-white/60 hover:text-white hover:border-white/40
-                      transition-all duration-300 hover:bg-white/5 hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2"
                   >
                     <p>{social.icon}</p>
 
