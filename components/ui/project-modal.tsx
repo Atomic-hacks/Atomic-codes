@@ -6,9 +6,15 @@ interface ProjectProps {
   index: number;
   title: string;
   manageModal: (active: boolean, index: number) => void;
+  description: string;
 }
 
-export default function Project({ index, title, manageModal }: ProjectProps) {
+export default function Project({
+  index,
+  title,
+  manageModal,
+  description,
+}: ProjectProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
@@ -25,61 +31,50 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
     const number = numberRef.current;
 
     if (content && title && subtitle && glow && bg && number) {
-      // Kill any existing animations to prevent conflicts
       gsap.killTweensOf([content, bg, glow, title, subtitle, number]);
 
-      // Animate the content wrapper
+      // Ultra-fast, snappy animations
       gsap.to(content, {
         x: 25,
-        duration: 0.6,
-        ease: "power3.out",
-        overwrite: true,
+        duration: 0.25,
+        ease: "power2.out",
       });
 
-      // Background effects
       gsap.to(bg, {
         opacity: 1,
         scale: 1.02,
-        duration: 0.5,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
 
       gsap.to(glow, {
         opacity: 0.3,
         scale: 1,
-        duration: 0.8,
+        duration: 0.25,
         ease: "power2.out",
-        overwrite: true,
       });
 
-      // Content animations
       gsap.to(title, {
         x: 5,
         color: "#ffffff",
         scale: 1.02,
-        duration: 0.4,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
 
       gsap.to(subtitle, {
         x: 8,
         color: "rgba(255, 255, 255, 0.8)",
-        duration: 0.4,
-        delay: 0.1,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
 
       gsap.to(number, {
         x: 10,
         color: "rgba(255, 255, 255, 0.9)",
         scale: 1.05,
-        duration: 0.4,
-        delay: 0.05,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
     }
 
@@ -95,40 +90,35 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
     const number = numberRef.current;
 
     if (content && title && subtitle && glow && bg && number) {
-      // Kill any existing animations to prevent conflicts
       gsap.killTweensOf([content, bg, glow, title, subtitle, number]);
 
-      // Reset animations
+      // Ultra-fast reset
       gsap.to(content, {
         x: 0,
-        duration: 0.6,
-        ease: "power3.out",
-        overwrite: true,
+        duration: 0.25,
+        ease: "power2.out",
       });
 
       gsap.to(bg, {
         opacity: 0,
         scale: 0.98,
-        duration: 0.5,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
 
       gsap.to(glow, {
         opacity: 0,
         scale: 0.95,
-        duration: 0.8,
+        duration: 0.25,
         ease: "power2.out",
-        overwrite: true,
       });
 
       gsap.to([title, subtitle, number], {
         x: 0,
         color: "rgba(255, 255, 255, 0.7)",
         scale: 1,
-        duration: 0.4,
+        duration: 0.2,
         ease: "power2.out",
-        overwrite: true,
       });
     }
 
@@ -137,7 +127,7 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
 
   return (
     <div
-      className="w-full border-b border-white/10 pb-12 last:border-b-0 relative overflow-hidden group "
+      className="w-full border-b border-white/10 pb-12 last:border-b-0 relative overflow-hidden group"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -151,7 +141,7 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
       <div
         ref={bgRef}
         className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/8 to-white/5 
-        opacity-0 scale-98 rounded-lg transition-all duration-500"
+        opacity-0 scale-98 rounded-lg"
       />
 
       <div
@@ -170,7 +160,7 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
           {/* Project Number */}
           <span
             ref={numberRef}
-            className="text-6xl font-light text-white/70 transition-all duration-400 tabular-nums"
+            className="text-6xl font-light text-white/70 tabular-nums"
           >
             {String(index + 1).padStart(2, "0")}
           </span>
@@ -179,28 +169,26 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
           <div>
             <h2
               ref={titleRef}
-              className="text-4xl font-light mb-2 text-white/70 transition-all duration-400 tracking-tight"
+              className="text-4xl font-light mb-2 text-white/70 tracking-tight"
             >
               {title}
             </h2>
-            <p
-              ref={subtitleRef}
-              className="text-lg text-white/60 transition-all duration-400 font-light"
-            >
+            <p ref={subtitleRef} className="text-lg text-white/60 font-light">
               Design & Development
             </p>
+            <p className="text-sm text-white/60 font-light">{description}</p>
           </div>
         </div>
 
         {/* Arrow indicator */}
-        <div className="text-white/40 group-hover:text-white/70 transition-colors duration-400">
+        <div className="text-white/40 transition-colors duration-200 group-hover:text-white/70">
           <svg
             width="24"
             height="24"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="transform group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform duration-500 ease-out"
+            className="transform transition-transform duration-200 ease-out group-hover:translate-x-2 group-hover:-translate-y-2"
           >
             <path
               d="M7 17L17 7"
@@ -221,7 +209,7 @@ export default function Project({ index, title, manageModal }: ProjectProps) {
       </div>
 
       {/* Subtle border animation */}
-      <div className="absolute bottom-0 left-10 w-0 h-px bg-gradient-to-r from-white/40 to-transparent group-hover:w-full transition-all duration-700 ease-out" />
+      <div className="absolute bottom-0 left-10 w-0 h-px bg-gradient-to-r from-white/40 to-transparent transition-all duration-300 ease-out group-hover:w-full" />
     </div>
   );
 }

@@ -7,9 +7,9 @@ import ProjectsComponent from "@/components/Projects";
 export default function Home() {
   return (
     <main className="relative">
-      {/* Fixed background image with low opacity */}
+      {/* Fixed noise texture overlay */}
       <div
-        className="fixed inset-0 bg-blend-hard-light bg-cover bg-center bg-no-repeat bg-fixed opacity-30 -z-10"
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat pointer-events-none mix-blend-overlay opacity-30 -z-10"
         style={{
           backgroundImage: "url('/nois.jpg')",
         }}

@@ -10,20 +10,22 @@ const RotatingText = () => {
   const animationFrame = useRef<number | null>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  const text = "Available for new projects • Front End Mobile Developer/Full Stack Web Developer • ";
+  const text =
+    "Available for new projects • Front End Mobile Developer/Full Stack Web Developer •";
 
   // Measure the actual width of one text instance
   useEffect(() => {
     if (textRef.current) {
       // Create a temporary element to measure single text width
-      const tempElement = document.createElement('span');
-      tempElement.style.visibility = 'hidden';
-      tempElement.style.position = 'absolute';
-      tempElement.style.fontSize = window.innerWidth >= 768 ? '2.25rem' : '1.5rem'; // md:text-4xl : text-2xl
-      tempElement.style.fontWeight = '500';
-      tempElement.style.whiteSpace = 'nowrap';
+      const tempElement = document.createElement("span");
+      tempElement.style.visibility = "hidden";
+      tempElement.style.position = "absolute";
+      tempElement.style.fontSize =
+        window.innerWidth >= 768 ? "2.25rem" : "1.5rem"; // md:text-4xl : text-2xl
+      tempElement.style.fontWeight = "500";
+      tempElement.style.whiteSpace = "nowrap";
       tempElement.textContent = text;
-      
+
       document.body.appendChild(tempElement);
       const measuredWidth = tempElement.offsetWidth + 32; // +32 for mr-8 (2rem = 32px)
       setTextWidth(measuredWidth);

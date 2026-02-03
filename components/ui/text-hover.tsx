@@ -29,10 +29,9 @@ export const TextHoverEffect = ({
     }
   }, [cursor]);
 
-  // Calculate approximate viewBox based on text length
   const textLength = text.length;
-  const baseWidth = Math.max(textLength * 60, 300); // Adjust multiplier as needed
-  const baseHeight = 120; // Fixed height that works well for large text
+  const baseWidth = Math.max(textLength * 60, 300);
+  const baseHeight = 120;
 
   return (
     <div className={`w-full ${className}`}>
@@ -46,11 +45,32 @@ export const TextHoverEffect = ({
         onMouseLeave={() => setHovered(false)}
         onMouseMove={(e) => setCursor({ x: e.clientX, y: e.clientY })}
         className="select-none relative z-10"
-        style={{ minHeight: "120px" }} // Ensure minimum height
+        style={{ minHeight: "120px" }}
       >
         <defs>
+          {/* Glassmorphic gradient for fill */}
+          <linearGradient id="glassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(255, 255, 255, 0.15)" />
+            <stop offset="50%" stopColor="rgba(255, 255, 255, 0.08)" />
+            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.05)" />
+          </linearGradient>
+
+          {/* Refined border gradient */}
           <linearGradient
-            id="textGradient"
+            id="borderGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor="rgba(255, 255, 255, 0.3)" />
+            <stop offset="50%" stopColor="rgba(255, 255, 255, 0.15)" />
+            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" />
+          </linearGradient>
+
+          {/* Hover gradient */}
+          <linearGradient
+            id="hoverGradient"
             gradientUnits="userSpaceOnUse"
             cx="50%"
             cy="50%"
@@ -58,47 +78,41 @@ export const TextHoverEffect = ({
           >
             {hovered ? (
               <>
-                <stop offset="0%" stopColor="#f8fafc" stopOpacity="0.6" />
-                <stop offset="25%" stopColor="#cbd5e1" stopOpacity="0.5" />
-                <stop offset="50%" stopColor="#94a3b8" stopOpacity="0.4" />
-                <stop offset="75%" stopColor="#64748b" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#475569" stopOpacity="0.6" />
+                <stop offset="0%" stopColor="rgba(248, 250, 252, 0.9)" />
+                <stop offset="25%" stopColor="rgba(203, 213, 225, 0.7)" />
+                <stop offset="50%" stopColor="rgba(148, 163, 184, 0.5)" />
+                <stop offset="75%" stopColor="rgba(100, 116, 139, 0.6)" />
+                <stop offset="100%" stopColor="rgba(71, 85, 105, 0.8)" />
               </>
             ) : (
               <>
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.4" />
-                <stop offset="50%" stopColor="#f1f5f9" stopOpacity="0.25" />
-                <stop offset="100%" stopColor="#e2e8f0" stopOpacity="0.15" />
+                <stop offset="0%" stopColor="rgba(255, 255, 255, 0.4)" />
+                <stop offset="50%" stopColor="rgba(241, 245, 249, 0.25)" />
+                <stop offset="100%" stopColor="rgba(226, 232, 240, 0.15)" />
               </>
             )}
           </linearGradient>
 
+          {/* Glass blur effect */}
           <filter id="glassBlur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.3" />
-            <feOffset dx="0" dy="0.2" result="softBlur" />
-            <feMerge>
-              <feMergeNode in="softBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="1.2" />
+            </feComponentTransfer>
           </filter>
 
+          {/* Subtle glow for depth */}
           <filter id="subtleGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1.5" result="softGlow" />
-            <feOffset dx="0" dy="0" result="offsetGlow" />
+            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+            <feFlood floodColor="rgba(255, 255, 255, 0.2)" />
+            <feComposite in2="coloredBlur" operator="in" />
             <feMerge>
-              <feMergeNode in="offsetGlow" />
+              <feMergeNode />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
 
-          <filter id="refinedGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="refinedBlur" />
-            <feMerge>
-              <feMergeNode in="refinedBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-
+          {/* Radial gradient mask for hover effect */}
           <motion.radialGradient
             id="revealMask"
             gradientUnits="userSpaceOnUse"
@@ -114,6 +128,7 @@ export const TextHoverEffect = ({
             <stop offset="0%" stopColor="white" />
             <stop offset="100%" stopColor="black" />
           </motion.radialGradient>
+
           <mask id="textMask">
             <rect
               x="0"
@@ -125,14 +140,33 @@ export const TextHoverEffect = ({
           </mask>
         </defs>
 
-        {/* Base visible text layer */}
+        {/* Base glassmorphic text layer */}
         <text
           x="50%"
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          strokeWidth="1.5"
-          className="fill-neutral-300 stroke-neutral-400 font-bold dark:fill-neutral-600 dark:stroke-neutral-500"
+          fill="url(#glassGradient)"
+          filter="url(#glassBlur)"
+          className="font-bold"
+          style={{
+            fontSize: "6rem",
+            fontFamily: "Helvetica, Arial, sans-serif",
+          }}
+        >
+          {text}
+        </text>
+
+        {/* Refined border/stroke layer */}
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="none"
+          stroke="url(#borderGradient)"
+          strokeWidth="0.5"
+          className="font-bold"
           style={{
             fontSize: "6rem",
             fontFamily: "Helvetica, Arial, sans-serif",
@@ -147,8 +181,10 @@ export const TextHoverEffect = ({
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          strokeWidth="2"
-          className="fill-transparent stroke-neutral-600 font-bold dark:stroke-neutral-300"
+          strokeWidth="1"
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.2)"
+          className="font-bold"
           initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
           animate={{
             strokeDashoffset: 0,
@@ -166,18 +202,21 @@ export const TextHoverEffect = ({
           {text}
         </motion.text>
 
-        {/* Hover gradient effect layer */}
+        {/* Hover gradient effect layer with glow */}
         <text
           x="50%"
           y="50%"
           textAnchor="middle"
           dominantBaseline="middle"
-          stroke="url(#textGradient)"
-          strokeWidth="2"
+          stroke="url(#hoverGradient)"
+          strokeWidth="1.5"
+          fill="none"
           mask="url(#textMask)"
-          className="fill-transparent font-bold"
+          filter="url(#subtleGlow)"
+          className="font-bold"
           style={{
             opacity: hovered ? 1 : 0,
+            transition: "opacity 0.3s ease",
             fontSize: "6rem",
             fontFamily: "Helvetica, Arial, sans-serif",
           }}

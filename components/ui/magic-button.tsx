@@ -110,7 +110,7 @@ export default function RoundedButton({
         className={`
           inline-flex items-center justify-center overflow-hidden group rounded-full border border-white/20 bg-white/10
           backdrop-blur-md shadow-[0_4px_30px_rgba(0,0,0,0.1)] transition-colors duration-500 ease-in-out hover:bg-white/20 hover:border-white/30 hover:opacity-70
-          ${className}
+         cursor-pointer ${className}
         `}
         onMouseEnter={manageMouseEnter}
         onMouseLeave={manageMouseLeave}

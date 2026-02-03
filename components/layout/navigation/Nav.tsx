@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
-import React, { useState } from 'react';
-import { motion, Variants } from 'framer-motion';
-import { usePathname } from 'next/navigation';
-import { menuSlide, slide, scale } from './Animations';
-import Footer from './Footer';
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import gsap from "gsap";
+import Footer from "./Footer";
 
 const navItems = [
   {
@@ -25,77 +24,132 @@ const navItems = [
   },
 ];
 
-export default function Navigation({ onNavigate }: { onNavigate?: () => void }) {
+export default function Navigation({
+  onNavigate,
+}: {
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const [selectedIndicator, setSelectedIndicator] = useState("#home");
+  const menuRef = useRef<HTMLDivElement>(null);
+  const curveRef = useRef<SVGPathElement>(null);
+
+  // Animate menu entrance
+  useEffect(() => {
+    const menu = menuRef.current;
+    const curve = curveRef.current;
+
+    if (!menu) return;
+
+    const ctx = gsap.context(() => {
+      // Menu slide in
+      gsap.fromTo(
+        menu,
+        { x: "100%" },
+        {
+          x: "0%",
+          duration: 0.8,
+          ease: "power3.out",
+        }
+      );
+
+     
+      // Stagger nav items
+      const items = menu.querySelectorAll(".nav-item");
+      gsap.fromTo(
+        items,
+        {
+          opacity: 0,
+          x: 50,
+        },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power2.out",
+          delay: 0.3,
+        }
+      );
+    }, menu);
+
+    return () => ctx.revert();
+  }, []);
 
   // Smooth scroll function
   const handleNavClick = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start' 
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
       setSelectedIndicator(href);
-      // Close mobile menu after navigation
+
       if (onNavigate) {
-        setTimeout(() => onNavigate(), 300); // Small delay for smooth animation
+        setTimeout(() => onNavigate(), 300);
       }
     }
   };
 
-  // Custom Link component that works with your existing one
-  const NavigationLink = ({ data, isActive, setSelectedIndicator }: any) => {
-    const { title, href, index } = data;
+  // Navigation Link component
+  const NavigationLink = ({ data, isActive }: any) => {
+    const { title, href } = data;
+    const indicatorRef = useRef<HTMLDivElement>(null);
 
     const handleClick = (e: React.MouseEvent) => {
       e.preventDefault();
       handleNavClick(href);
-    };  
+    };
+
+    // Animate indicator
+    useEffect(() => {
+      const indicator = indicatorRef.current;
+      if (!indicator) return;
+
+      gsap.to(indicator, {
+        scale: isActive ? 1 : 0,
+        opacity: isActive ? 1 : 0,
+        duration: 0.4,
+        ease: "power2.out",
+      });
+    }, [isActive]);
 
     return (
-      <motion.div
-        className="relative mb-3 group"
+      <div
+        className="nav-item relative mb-3 group"
         onMouseEnter={() => setSelectedIndicator(href)}
-        custom={index}
-        variants={slide}
-        initial="initial"
-        animate="enter"
-        exit="exit"
       >
-          
-        <motion.div
-          variants={scale}
-          animate={isActive ? "open" : "closed"}
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-black/20 backdrop-blur-xl opacity-50 rounded-full shadow-lg shadow-cyan-400/50"
+        <div
+          ref={indicatorRef}
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white/20 backdrop-blur-xl rounded-full shadow-lg"
+          style={{ scale: 0 }}
         />
-              
+
         <div className="relative pl-6 py-4">
           <button
             onClick={handleClick}
-            className="text-white text-2xl font-light tracking-wide text-left w-full"
+            className="text-white text-2xl font-light tracking-wide text-left w-full 
+              hover:text-white/80 transition-colors duration-300"
           >
             {title}
           </button>
         </div>
-      </motion.div>
+      </div>
     );
   };
 
   return (
-    <motion.div
-      variants={menuSlide}
-      initial="initial"
-      animate="enter"
-      exit="exit"
-      className="fixed top-0 right-0 h-screen w-96 z-[100]" // Higher z-index than button (z-30)
+    <div
+      ref={menuRef}
+      className="fixed top-0 right-0 h-screen w-96 z-[100]"
+      data-navigation
     >
       {/* Glassmorphism background */}
       <div className="absolute inset-0 bg-white/10 backdrop-blur-xl border-l border-white/20 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/5" />
       </div>
-            
+
       <div className="relative h-full flex flex-col justify-between p-8">
         <div
           onMouseLeave={() => setSelectedIndicator(selectedIndicator)}
@@ -109,69 +163,14 @@ export default function Navigation({ onNavigate }: { onNavigate?: () => void }) 
           {navItems.map((data, index) => (
             <NavigationLink
               key={index}
-              data={{...data, index}}
+              data={data}
               isActive={selectedIndicator === data.href}
-              setSelectedIndicator={setSelectedIndicator}
             />
           ))}
         </div>
         <Footer />
       </div>
-      <Curve />
-    </motion.div>
+
+    </div>
   );
 }
-
-// Curve component (since we removed the import)
-const Curve = () => {
-  const [dimensions, setDimensions] = React.useState({ width: 0, height: 0 });
-
-  React.useEffect(() => {
-    const updateDimensions = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight
-      });
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-
-  const initialPath = `M100 0 L100 ${dimensions.height} Q-100 ${dimensions.height/2} 100 0`;
-  const targetPath = `M100 0 L100 ${dimensions.height} Q100 ${dimensions.height/2} 100 0`;
-
-  const curve:Variants = {
-    initial: {
-      d: initialPath
-    },
-    enter: {
-      d: targetPath,
-      transition: { duration: 1, ease: [0.76, 0, 0.24, 1] }
-    },
-    exit: {
-      d: initialPath,
-      transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] }
-    }
-  };
-
-  return (
-    <svg className="absolute top-0 left-0 w-24 h-full fill-none pointer-events-none">
-      <defs>
-        <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.1)" />
-          <stop offset="100%" stopColor="rgba(255,255,255,0.05)" />
-        </linearGradient>
-      </defs>
-      <motion.path
-        variants={curve}
-        initial="initial"
-        animate="enter"
-        exit="exit"
-        fill="url(#curveGradient)"
-        className="drop-shadow-lg"
-      />
-    </svg>
-  );
-};
